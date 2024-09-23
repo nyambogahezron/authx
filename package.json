@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "description": "authetication client",
   "main": "index.js",
- "scripts": {
-    "dev": "nodemon index.js",
-    "start": "node index.js"
+  "scripts": {
+   "start": "node index.js",
+    "server": "nodemon index.js",
+    "client": "npm run dev --prefix client",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
   },
   "author": "Hezron Nyamboga",
   "license": "ISC",
@@ -24,8 +26,8 @@
     "nodemailer": "^6.9.8",
     "validator": "^13.11.0"
   },
- 
   "devDependencies": {
+    "concurrently": "^9.0.1",
     "nodemon": "^3.1.7"
   }
 }
