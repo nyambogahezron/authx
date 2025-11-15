@@ -10,24 +10,49 @@ const UserSchema = new mongoose.Schema(
       minlength: [3, 'Name must be at least 3 characters long'],
       maxlength: [50, 'Name must be at most 50 characters long'],
     },
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
     email: {
       type: String,
       required: [true, 'Email is required'],
       unique: true,
     },
+    phoneNumber: {
+      type: String,
+      unique: true,
+      sparse: true,
+    },
+    phoneVerified: {
+      type: Boolean,
+      default: false,
+    },
     role: {
       type: String,
       required: [true, 'Role is required'],
-      enum: ['user', 'admin'],
+      enum: ['user', 'admin', 'moderator'],
       default: 'user',
     },
+    permissions: [
+      {
+        type: String,
+      },
+    ],
     avatar: {
       type: String,
       default: 'default.jpg',
     },
+    bio: {
+      type: String,
+      maxlength: [500, 'Bio must be at most 500 characters long'],
+    },
+    customAttributes: {
+      type: mongoose.Schema.Types.Mixed,
+    },
     password: {
       type: String,
-      required: [true, 'Password is required'],
       minlength: [8, 'Password must be at least 8 characters long'],
       select: false,
     },
@@ -38,12 +63,29 @@ const UserSchema = new mongoose.Schema(
     passwordTokenExpires: { type: Date },
     accountStatus: {
       type: String,
-      enum: ['active', 'inactive', 'suspended'],
+      enum: ['active', 'inactive', 'suspended', 'deleted'],
       default: 'active',
     },
     loginAttempts: {
       type: Number,
       default: 0,
+    },
+    lockUntil: {
+      type: Date,
+    },
+    lastLogin: {
+      type: Date,
+    },
+    lastLoginIp: {
+      type: String,
+    },
+    mfaEnabled: {
+      type: Boolean,
+      default: false,
+    },
+    preferredLoginMethod: {
+      type: String,
+      enum: ['password', 'magiclink', 'phone', 'oauth'],
     },
   },
   {
@@ -96,11 +138,16 @@ UserSchema.methods.comparePassword = async function (enteredPassword: any) {
  */
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
+  }
+
+  if (!this.password) {
+    return next();
   }
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
 const User = mongoose.model<IUser & IUserMethods>('User', UserSchema);

@@ -14,7 +14,7 @@ export const GetCurrentUser = AsyncHandler(
       throw new UnauthorizedError('Unauthorized access');
     }
 
-    const user = await User.findById(req.user?.userId).select('-password');
+    const user = await User.findById((req.user as any).userId || (req.user as any)._id).select('-password');
     res.json({ success: true, data: user });
   }
 );
@@ -26,7 +26,7 @@ export const GetCurrentUser = AsyncHandler(
  */
 export const UpdateUser = AsyncHandler(async (req: Request, res: Response) => {
   const { name, email } = req.body;
-  const userId = req.user?.userId;
+  const userId = (req.user as any).userId || (req.user as any)._id;
 
   const user = await User.findById(userId);
 
@@ -50,7 +50,7 @@ export const UpdateUser = AsyncHandler(async (req: Request, res: Response) => {
 export const UpdatePassword = AsyncHandler(
   async (req: Request, res: Response) => {
     const { currentPassword, newPassword } = req.body;
-    const userId = req.user?.userId;
+    const userId = (req.user as any).userId || (req.user as any)._id;
 
     if (!currentPassword || !newPassword) {
       throw new BadRequestError('Invalid credentials');

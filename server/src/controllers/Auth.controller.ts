@@ -3,6 +3,8 @@ import crypto from 'crypto';
 import AsyncHandler from '../middleware/AsyncHandler';
 import User from '../models/User.model';
 import Token from '../models/Token.model';
+import Session from '../models/Session.model';
+import AuditLog from '../models/AuditLog.model';
 import { BadRequestError, UnauthorizedError } from '../errors';
 import { generateCode } from '../utils/GenerateCode';
 import { StatusCodes } from 'http-status-codes';
@@ -10,6 +12,7 @@ import attachCookieToResponse from '../utils/JWT';
 import CreateHash from '../utils/CreateHash';
 import { UserProps } from '../types';
 import SendEmail from '../utils/SendEmail';
+import { parseDeviceInfo } from '../utils/DeviceFingerprint';
 
 /**
  *@description Register User
@@ -37,7 +40,7 @@ export const RegisterUser = AsyncHandler(
     await SendEmail({
       email,
       name,
-      subject: 'Comfy Store - Email Verification',
+      subject: 'AuthX - Email Verification',
       message: verificationToken,
       category: 'confirmation',
     });
@@ -47,6 +50,16 @@ export const RegisterUser = AsyncHandler(
       email,
       password,
       verificationToken,
+    });
+
+    // Log signup event
+    await AuditLog.create({
+      user: user._id,
+      event: 'user.signup',
+      metadata: { method: 'email' },
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+      status: 'success',
     });
 
     user.set('password', undefined, { strict: false });
@@ -153,10 +166,47 @@ export const LoginUser = AsyncHandler(async (req: Request, res: Response) => {
     throw new UnauthorizedError('Invalid credentials');
   }
 
+  // Check if account is locked
+  if (user.lockUntil && user.lockUntil > new Date()) {
+    throw new UnauthorizedError('Account is temporarily locked. Please try again later');
+  }
+
   const isPasswordCorrect = await user.comparePassword(password);
-  console.log(isPasswordCorrect);
 
   if (!isPasswordCorrect) {
+    // Increment login attempts
+    user.loginAttempts = (user.loginAttempts || 0) + 1;
+    
+    // Lock account after 5 failed attempts
+    if (user.loginAttempts >= 5) {
+      user.lockUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+      await user.save();
+      
+      // Log failed login
+      await AuditLog.create({
+        user: user._id,
+        event: 'failed.login',
+        metadata: { reason: 'account_locked', attempts: user.loginAttempts },
+        ip: req.ip,
+        userAgent: req.headers['user-agent'],
+        status: 'failure',
+      });
+      
+      throw new UnauthorizedError('Too many failed login attempts. Account locked for 15 minutes');
+    }
+    
+    await user.save();
+    
+    // Log failed login
+    await AuditLog.create({
+      user: user._id,
+      event: 'failed.login',
+      metadata: { reason: 'invalid_password', attempts: user.loginAttempts },
+      ip: req.ip,
+      userAgent: req.headers['user-agent'],
+      status: 'failure',
+    });
+    
     throw new UnauthorizedError('Username or password is incorrect');
   }
 
@@ -164,41 +214,72 @@ export const LoginUser = AsyncHandler(async (req: Request, res: Response) => {
     throw new UnauthorizedError('Email not verified');
   }
 
+  // Check if account is suspended
+  if (user.accountStatus === 'suspended') {
+    throw new UnauthorizedError('Account is suspended');
+  }
+
+  // Reset login attempts on successful login
+  user.loginAttempts = 0;
+  user.lockUntil = undefined;
+  user.lastLogin = new Date();
+  user.lastLoginIp = req.ip || 'unknown';
+  await user.save();
+
   const tokenObj: UserProps = {
     userId: user._id,
     name: user.name,
     email: user.email,
   };
+  
   let refreshToken = '';
+  const deviceInfo = parseDeviceInfo(req);
 
-  // check if user has a refresh token
-  const existingRefreshToken = await Token.findOne({ user: user._id });
+  // Check if user has an active session from this device
+  const existingSession = await Session.findOne({
+    user: user._id,
+    deviceFingerprint: deviceInfo.fingerprint,
+    isActive: true,
+  });
 
-  if (existingRefreshToken) {
-    const { isValid } = existingRefreshToken;
+  if (existingSession) {
+    // Update existing session
+    existingSession.lastActivity = new Date();
+    existingSession.ip = deviceInfo.ip;
+    existingSession.userAgent = deviceInfo.userAgent;
+    await existingSession.save();
+    
+    refreshToken = existingSession.token;
+  } else {
+    // Create new session
+    refreshToken = crypto.randomBytes(40).toString('hex');
+    const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
-    if (!isValid) {
-      throw new UnauthorizedError('Invalid refresh token');
-    }
-
-    refreshToken = existingRefreshToken.token;
-    attachCookieToResponse({ res, user: tokenObj, token: refreshToken });
-    res.status(StatusCodes.OK).json({ user: tokenObj });
-    return;
+    await Session.create({
+      user: user._id,
+      token: refreshToken,
+      deviceFingerprint: deviceInfo.fingerprint,
+      deviceInfo: {
+        browser: deviceInfo.browser,
+        os: deviceInfo.os,
+        device: deviceInfo.device,
+      },
+      ip: deviceInfo.ip,
+      userAgent: deviceInfo.userAgent,
+      isActive: true,
+      expiresAt,
+    });
   }
 
-  refreshToken = crypto.randomBytes(40).toString('hex');
-
-  const userToken = {
+  // Log successful login
+  await AuditLog.create({
     user: user._id,
-    token: refreshToken,
-    type: 'emailLogin',
-    ip: req.ip,
-    userAgent: req.headers['user-agent'],
-    isValid: true,
-  };
-
-  await Token.create(userToken);
+    event: 'user.login',
+    metadata: { method: 'password' },
+    ip: deviceInfo.ip,
+    userAgent: deviceInfo.userAgent,
+    status: 'success',
+  });
 
   attachCookieToResponse({ res, user: tokenObj, token: refreshToken });
 
