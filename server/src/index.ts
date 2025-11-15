@@ -25,6 +25,8 @@ import MFARoutes from './routes/MFA.routes';
 import OAuthRoutes from './routes/OAuth.routes';
 import PasswordlessRoutes from './routes/Passwordless.routes';
 import SessionRoutes from './routes/Session.routes';
+import AdminRoutes from './routes/Admin.routes';
+import WebhookRoutes from './routes/Webhook.routes';
 
 //middlewares
 import ErrorHandlerMiddleware from './middleware/ErrorsHandler';
@@ -65,6 +67,8 @@ app.use('/api/v1/auth', PasswordlessRoutes);
 app.use('/api/v1/users', UserRoutes);
 app.use('/api/v1/mfa', MFARoutes);
 app.use('/api/v1/sessions', SessionRoutes);
+app.use('/api/v1/admin', AdminRoutes);
+app.use('/api/v1/webhooks', WebhookRoutes);
 
 app.get('/', (req: Request, res: Response) => {
   res.send('AuthX API - Comprehensive Authentication System');

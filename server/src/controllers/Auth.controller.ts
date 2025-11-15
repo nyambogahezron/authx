@@ -13,6 +13,7 @@ import CreateHash from '../utils/CreateHash';
 import { UserProps } from '../types';
 import SendEmail from '../utils/SendEmail';
 import { parseDeviceInfo } from '../utils/DeviceFingerprint';
+import { triggerWebhooks } from '../utils/Webhooks';
 
 /**
  *@description Register User
@@ -61,6 +62,14 @@ export const RegisterUser = AsyncHandler(
       userAgent: req.headers['user-agent'],
       status: 'success',
     });
+
+    // Trigger webhooks
+    triggerWebhooks('user.signup', {
+      userId: user._id,
+      name: user.name,
+      email: user.email,
+      createdAt: user.createdAt,
+    }).catch((error) => console.error('Webhook error:', error));
 
     user.set('password', undefined, { strict: false });
     res.status(StatusCodes.CREATED).json({ success: true, data: user });
@@ -281,6 +290,15 @@ export const LoginUser = AsyncHandler(async (req: Request, res: Response) => {
     status: 'success',
   });
 
+  // Trigger webhooks
+  triggerWebhooks('user.login', {
+    userId: user._id,
+    name: user.name,
+    email: user.email,
+    ip: deviceInfo.ip,
+    device: deviceInfo.device,
+  }).catch((error) => console.error('Webhook error:', error));
+
   attachCookieToResponse({ res, user: tokenObj, token: refreshToken });
 
   res.status(StatusCodes.OK).json({ user: tokenObj });
@@ -375,6 +393,12 @@ export const ResetPassword = AsyncHandler(
 export const LogoutUser = AsyncHandler(async (req: Request, res: Response) => {
   const { userId } = req.body;
   await Token.findOneAndDelete({ user: userId });
+
+  // Trigger webhooks
+  triggerWebhooks('user.logout', {
+    userId,
+    timestamp: new Date(),
+  }).catch((error) => console.error('Webhook error:', error));
 
   res.cookie('accessToken', 'logout', {
     httpOnly: true,
