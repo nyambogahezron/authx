@@ -18,3 +18,63 @@ EMAIL_PASSWORD=
 
 # The URL of the client application (e.g., frontend URL).
 CLIENT_URL=
+
+# The URL of the server (for OAuth callbacks).
+SERVER_URL=http://localhost:5000
+
+# OAuth Provider Credentials
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# Facebook OAuth
+FACEBOOK_APP_ID=
+FACEBOOK_APP_SECRET=
+
+# GitHub OAuth
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+
+# LinkedIn OAuth
+LINKEDIN_CLIENT_ID=
+LINKEDIN_CLIENT_SECRET=
+
+# Twitter OAuth
+TWITTER_CONSUMER_KEY=
+TWITTER_CONSUMER_SECRET=
+
+# Apple OAuth (optional)
+APPLE_CLIENT_ID=
+APPLE_TEAM_ID=
+APPLE_KEY_ID=
+APPLE_PRIVATE_KEY_PATH=
+
+# SMS Provider (Twilio)
+TWILIO_ACCOUNT_SID=
+TWILIO_AUTH_TOKEN=
+TWILIO_PHONE_NUMBER=
+
+# Alternative SMS Provider (Africa's Talking)
+AFRICASTALKING_API_KEY=
+AFRICASTALKING_USERNAME=
+
+# Redis (optional, for caching and rate limiting)
+REDIS_URL=
+
+# Session configuration
+SESSION_LIFETIME_DAYS=30
+MAX_SESSIONS_PER_USER=5
+
+# Security
+MAX_LOGIN_ATTEMPTS=5
+ACCOUNT_LOCK_DURATION_MINUTES=15
+
+# Webhooks
+WEBHOOK_SECRET=
+WEBHOOK_URL=
+
+# Stripe (for billing)
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
