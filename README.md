@@ -1,319 +1,135 @@
-# AuthX - Enterprise-Grade Authentication System
+# Turborepo starter
 
-A comprehensive, production-ready authentication system built with TypeScript, Express.js, and MongoDB. AuthX provides everything you need to add authentication to your web or mobile application.
+This Turborepo starter is maintained by the Turborepo core team.
 
-## 🚀 Quick Start
+## Using this example
 
-### Prerequisites
-- Node.js v16 or higher
-- MongoDB v5 or higher
-- npm or yarn
+Run the following command:
 
-### Installation
-
-1. Clone the repository:
-```bash
-git clone https://github.com/nyambogahezron/authx.git
-cd authx
+```sh
+npx create-turbo@latest
 ```
 
-2. Install server dependencies:
-```bash
-cd server
-npm install
-```
+## What's inside?
 
-3. Configure environment variables:
-```bash
-cp env-example.txt .env
-# Edit .env with your configuration
-```
+This Turborepo includes the following packages/apps:
 
-4. Build and run:
-```bash
-npm run build
-npm start
-```
+### Apps and Packages
 
-Server will be running at `http://localhost:5000`
+- `docs`: a [Next.js](https://nextjs.org/) app
+- `web`: another [Next.js](https://nextjs.org/) app
+- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
+- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
+- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
 
-## ✨ Features
+Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
 
-### 🔐 Authentication Methods (8 Methods)
-- ✅ Email + Password
-- ✅ Magic Link (Passwordless)
-- ✅ Phone + OTP
-- ✅ Google OAuth
-- ✅ Facebook OAuth
-- ✅ GitHub OAuth
-- ✅ LinkedIn OAuth
-- ✅ Username-based Login
+### Utilities
 
-### 🛡️ Security Features
-- ✅ Rate Limiting
-- ✅ Brute-Force Protection
-- ✅ Device Fingerprinting
-- ✅ Multi-Factor Authentication (TOTP, Email, SMS)
-- ✅ Session Management
-- ✅ Security Headers (Helmet)
-- ✅ Audit Logging
-- ✅ MongoDB Injection Prevention
+This Turborepo has some additional tools already setup for you:
 
-### 👥 User Management
-- ✅ Extended Profiles
-- ✅ Role-Based Access Control (RBAC)
-- ✅ Permission Groups
-- ✅ Activity Tracking
-- ✅ Account Status Management
+- [TypeScript](https://www.typescriptlang.org/) for static type checking
+- [ESLint](https://eslint.org/) for code linting
+- [Prettier](https://prettier.io) for code formatting
 
-### 📊 Admin Dashboard
-- ✅ User Management
-- ✅ Analytics & Statistics
-- ✅ Audit Log Viewer
-- ✅ Force Password Reset
-- ✅ Webhook Management
+### Build
 
-### 🧩 Developer Tools
-- ✅ REST API (60+ endpoints)
-- ✅ Webhooks with Signature Verification
-- ✅ API Key Management
-- ✅ Comprehensive Documentation
-- ✅ SDK Examples (5 platforms)
-
-## 📚 Documentation
-
-- [Server README](./server/README.md) - Detailed server setup and configuration
-- [API Documentation](./server/API_DOCUMENTATION.md) - Complete API reference
-- [SDK Examples](./SDK_EXAMPLES.md) - Integration examples for various platforms
-- [Features List](./FEATURES.md) - Complete feature inventory
-- [Implementation Summary](./IMPLEMENTATION_SUMMARY.md) - Detailed technical overview
-
-## 🎯 Use Cases
-
-AuthX is perfect for:
-- **SaaS Applications** - Multi-tenant authentication
-- **Mobile Apps** - Secure mobile authentication with device tracking
-- **Web Applications** - Complete authentication solution
-- **Enterprise Apps** - RBAC, MFA, and advanced security features
-- **API Services** - API key management and webhook integration
-
-## 🔌 Quick Integration
-
-### JavaScript/TypeScript
-
-```typescript
-import AuthXClient from './authx-client';
-
-const authx = new AuthXClient({
-  baseURL: 'http://localhost:5000',
-});
-
-// Register
-await authx.register({
-  name: 'John Doe',
-  email: 'john@example.com',
-  password: 'SecurePassword123!',
-});
-
-// Login
-await authx.login({
-  email: 'john@example.com',
-  password: 'SecurePassword123!',
-});
-```
-
-### React
-
-```tsx
-import { useAuth } from './hooks/useAuth';
-
-function LoginForm() {
-  const { login } = useAuth();
-  
-  const handleSubmit = async (e) => {
-    await login(email, password);
-  };
-  
-  return <form onSubmit={handleSubmit}>...</form>;
-}
-```
-
-See [SDK_EXAMPLES.md](./SDK_EXAMPLES.md) for more examples.
-
-## 🏗️ Architecture
+To build all apps and packages, run the following command:
 
 ```
-AuthX
-├── Server (TypeScript + Express.js)
-│   ├── 60+ REST API endpoints
-│   ├── 7 database models
-│   ├── Comprehensive middleware stack
-│   └── Production-ready security
-├── Client (React + Vite)
-│   └── (Your frontend application)
-└── Documentation
-    ├── API Reference
-    ├── SDK Examples
-    └── Feature Guides
+cd my-turborepo
+
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build
+
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo build
+yarn dlx turbo build
+pnpm exec turbo build
 ```
 
-## 📊 Statistics
+You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
 
-- **8 Authentication Methods**
-- **60+ API Endpoints**
-- **7 Database Models**
-- **15+ Security Features**
-- **4 MFA Methods**
-- **92% Feature Complete**
-- **0 Security Vulnerabilities** (CodeQL verified)
+```
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo build --filter=docs
 
-## 🔒 Security
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo build --filter=docs
+yarn exec turbo build --filter=docs
+pnpm exec turbo build --filter=docs
+```
 
-AuthX implements industry-standard security practices:
-- Secure password hashing (bcrypt)
-- JWT token authentication
-- Rate limiting on sensitive endpoints
-- Brute-force protection
-- Device fingerprinting
-- Multi-factor authentication
-- Comprehensive audit logging
-- Security headers (Helmet)
-- MongoDB injection prevention
+### Develop
 
-**Security validated:** 0 vulnerabilities (CodeQL analysis)
+To develop all apps and packages, run the following command:
 
-## 🛠️ Technology Stack
+```
+cd my-turborepo
 
-### Backend
-- TypeScript
-- Express.js
-- MongoDB + Mongoose
-- Passport.js (OAuth)
-- bcrypt (password hashing)
-- JWT (authentication)
-- Helmet (security headers)
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev
 
-### Features
-- Rate limiting (express-rate-limit)
-- Email sending (nodemailer)
-- MFA (speakeasy, qrcode)
-- Device detection (ua-parser-js)
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo dev
+yarn exec turbo dev
+pnpm exec turbo dev
+```
 
-## 📝 API Endpoints
+You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
 
-### Authentication
-- `POST /api/v1/auth/register` - Register user
-- `POST /api/v1/auth/login` - Login user
-- `POST /api/v1/auth/verify-email` - Verify email
-- `POST /api/v1/auth/magic-link/request` - Request magic link
-- `POST /api/v1/auth/phone/request-otp` - Request phone OTP
-- And 50+ more endpoints...
+```
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo dev --filter=web
 
-See [API_DOCUMENTATION.md](./server/API_DOCUMENTATION.md) for complete reference.
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo dev --filter=web
+yarn exec turbo dev --filter=web
+pnpm exec turbo dev --filter=web
+```
 
-## 🌟 Key Features Detail
+### Remote Caching
 
-### Multi-Factor Authentication
-- TOTP (Google Authenticator, Authy)
-- Email OTP
-- SMS OTP (Twilio ready)
-- Backup codes (10 per user)
+> [!TIP]
+> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
 
-### Session Management
-- Device tracking
-- Trusted devices
-- Session revocation
-- Activity history
-- Cross-device syncing
+Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
 
-### Webhooks
-- 10 event types
-- HMAC-SHA256 signature verification
-- Retry with exponential backoff
-- Custom headers support
+By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
 
-### API Keys
-- Secure key generation
-- Per-key permissions
-- Rate limiting
-- Usage tracking
-- Key rotation
+```
+cd my-turborepo
 
-## 📈 Roadmap
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo login
 
-### In Progress (8% remaining)
-- [ ] Additional OAuth providers (Twitter, Apple, Discord, Reddit, Microsoft, Spotify)
-- [ ] IP filtering and geo-blocking
-- [ ] CAPTCHA integration
-- [ ] GraphQL API
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo login
+yarn exec turbo login
+pnpm exec turbo login
+```
 
-### Future Enhancements
-- [ ] SDK npm packages
-- [ ] CLI management tool
-- [ ] SAML 2.0 support
-- [ ] Custom email templates
-- [ ] Billing system
-- [ ] Admin UI dashboard
+This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
 
-## 🤝 Contributing
+Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+```
+# With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended)
+turbo link
 
-## 📄 License
+# Without [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation), use your package manager
+npx turbo link
+yarn exec turbo link
+pnpm exec turbo link
+```
 
-ISC License - see LICENSE file for details
+## Useful Links
 
-## 👨‍💻 Author
+Learn more about the power of Turborepo:
 
-**Nyamboga Hezron**
-
-## 🙏 Acknowledgments
-
-This project implements best practices from:
-- Auth0
-- Firebase Authentication
-- Clerk
-- NextAuth.js
-- Supabase Auth
-
-## 📞 Support
-
-For issues and questions:
-- Create an issue on GitHub
-- Check the documentation
-- Review SDK examples
-
-## 🎉 What's Included
-
-- ✅ **Production-ready server** with TypeScript
-- ✅ **60+ API endpoints** for all auth operations
-- ✅ **Complete security stack** (rate limiting, MFA, audit logs)
-- ✅ **Admin dashboard API** for user management
-- ✅ **Webhook system** for integrations
-- ✅ **API key management** for developers
-- ✅ **Comprehensive documentation** (4 guides)
-- ✅ **SDK examples** (5 platforms)
-
-## 🚀 Deploy to Production
-
-1. Set up MongoDB (Atlas, self-hosted, etc.)
-2. Configure environment variables
-3. Build the server: `npm run build`
-4. Start the server: `npm start`
-5. Configure your OAuth providers (optional)
-6. Set up email service (Gmail, SendGrid, etc.)
-7. Configure SMS provider for OTP (optional)
-
-## 💡 Example Projects
-
-Coming soon:
-- Todo app with AuthX
-- E-commerce site with AuthX
-- Social network with AuthX
-- Mobile app (React Native) with AuthX
-
----
-
-**Built with ❤️ for developers who need enterprise-grade authentication without the complexity.**
-
-⭐ **Star this repo** if you find it useful!
+- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
+- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
+- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
+- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
+- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
+- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
