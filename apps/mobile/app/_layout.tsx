@@ -1,24 +1,51 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import {
+	DarkTheme,
+	DefaultTheme,
+	ThemeProvider,
+} from "@react-navigation/native";
+import { Stack } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import "react-native-reanimated";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+import { Colors } from "@/constants/colors";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function RootLayout() {
-  const colorScheme = useColorScheme();
+	const colorScheme = useColorScheme();
+	const isDark = colorScheme === "dark";
 
-  return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
-  );
+	return (
+		<GestureHandlerRootView style={{ flex: 1 }}>
+			<SafeAreaProvider>
+				<ThemeProvider value={isDark ? DarkTheme : DefaultTheme}>
+					<Stack
+						screenOptions={{
+							headerShown: false,
+							contentStyle: {
+								backgroundColor: isDark ? Colors.gray[900] : Colors.white,
+							},
+						}}
+					>
+						<Stack.Screen
+							name="index"
+							options={{
+								animation: "fade",
+							}}
+						/>
+						<Stack.Screen
+							name="onboarding"
+							options={{
+								animation: "slide_from_right",
+							}}
+						/>
+						<Stack.Screen name="(auth)" options={{ headerShown: false }} />
+						<Stack.Screen name="(main)" options={{ headerShown: false }} />
+					</Stack>
+					<StatusBar style={isDark ? "light" : "dark"} />
+				</ThemeProvider>
+			</SafeAreaProvider>
+		</GestureHandlerRootView>
+	);
 }
